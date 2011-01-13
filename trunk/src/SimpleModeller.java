@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -21,8 +22,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.BoxLayout;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
@@ -37,12 +41,12 @@ import com.sun.opengl.util.GLUT;
 class ColoredBox {
 	public static final float DEFAULT_SIZE = 0.5f;
 	public static final float DEFAULT_ALPHA = 0.5f;
+	
 
 	public AlignedBox3D box;
 
 	// The color and alpha components, each in [0,1]
 	public float r=1, g=1, b=1, a=1;
-
 	public boolean isSelected = false;
 
 	public ColoredBox(
@@ -64,7 +68,7 @@ class ColoredBox {
 
 class Scene {
 	public Vector< ColoredBox > coloredBoxes = new Vector< ColoredBox >();
-
+	public boolean wireFrame=false;
 	AlignedBox3D boundingBoxOfScene = new AlignedBox3D();
 	boolean isBoundingBoxOfSceneDirty = false;
 
@@ -153,12 +157,13 @@ class Scene {
 		}
 	}
 
-	public void setColorOfBox( int index, float r, float g, float b ) {
+	public void setColorOfBox( int index, float r, float g, float b, float a) {
 		if ( 0 <= index && index < coloredBoxes.size() ) {
 			ColoredBox cb = coloredBoxes.elementAt(index);
 			cb.r = r;
 			cb.g = g;
 			cb.b = b;
+			cb.a = a;
 		}
 	}
 
@@ -312,6 +317,7 @@ class Scene {
 				gl.glColor4f( cb.r, cb.g, cb.b, cb.a );
 			else
 				gl.glColor3f( cb.r, cb.g, cb.b );
+
 			drawBox( gl, cb.box, false, disWireFrames, false ); // CC
 		}
 		if ( useAlphaBlending ) {
@@ -363,6 +369,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 	private static final int COMMAND_COLOR_GREEN = 3;
 	private static final int COMMAND_COLOR_BLUE = 4;
 	private static final int COMMAND_DELETE = 5;
+	public static final float DEFAULT_ALPHA = 0.5f;
 
 	public boolean displayWorldAxes = false;
 	public boolean displayCameraTarget = false;
@@ -453,9 +460,9 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		scene.setSelectionStateOfBox( indexOfSelectedBox, true );
 	}
 
-	public void setColorOfSelection( float r, float g, float b ) {
+	public void setColorOfSelection( float r, float g, float b, float a ) {
 		if ( indexOfSelectedBox >= 0 ) {
-			scene.setColorOfBox( indexOfSelectedBox, r, g, b );
+			scene.setColorOfBox( indexOfSelectedBox, r, g, b, a );
 		}
 	}
 
@@ -629,16 +636,16 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 				createNewBox();
 				break;
 			case COMMAND_COLOR_RED :
-				setColorOfSelection( 1, 0, 0 );
+				setColorOfSelection( 1, 0, 0 , DEFAULT_ALPHA );
 				break;
 			case COMMAND_COLOR_YELLOW :
-				setColorOfSelection( 1, 1, 0 );
+				setColorOfSelection( 1, 1, 0 , DEFAULT_ALPHA);
 				break;
 			case COMMAND_COLOR_GREEN :
-				setColorOfSelection( 0, 1, 0 );
+				setColorOfSelection( 0, 1, 0 , DEFAULT_ALPHA);
 				break;
 			case COMMAND_COLOR_BLUE :
-				setColorOfSelection( 0, 0, 1 );
+				setColorOfSelection( 0, 0, 1 , DEFAULT_ALPHA );
 				break;
 			case COMMAND_DELETE :
 				deleteSelection();
@@ -755,10 +762,15 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 	}
 }
 
-public class SimpleModeller implements ActionListener {
+public class SimpleModeller implements ActionListener,ChangeListener {
 
 	static final String applicationName = "Simple Modeller";
-
+	static final int MIN = 0;
+	static final int MAX = 255;
+	static final float MAXFLOAT= (float) 255.0;
+	
+	static final int INIT =0;
+	
 	JFrame frame;
 	Container toolPanel;
 	SceneViewer sceneViewer;
@@ -773,6 +785,20 @@ public class SimpleModeller implements ActionListener {
 	JCheckBox displayBoundingBoxCheckBox;
 	JCheckBox enableCompositingCheckBox;
 	JCheckBox displayWireFramesCheckBox; // CC
+	JLabel redLabel;
+	JLabel greenLabel;
+	JLabel blueLabel;
+	JLabel alphaLabel;
+	JSlider redSelector;
+	JSlider greenSelector;
+	JSlider blueSelector;
+	JSlider alphaSelector;
+
+
+	public void stateChanged(ChangeEvent e) {
+		sceneViewer.setColorOfSelection((float)(redSelector.getValue()/MAXFLOAT),(float)(greenSelector.getValue()/MAXFLOAT),(float)(blueSelector.getValue()/MAXFLOAT),(float)(alphaSelector.getValue()/MAXFLOAT));
+		sceneViewer.repaint();
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -921,7 +947,7 @@ public class SimpleModeller implements ActionListener {
 		resetCameraButton.setAlignmentX( Component.LEFT_ALIGNMENT );
 		resetCameraButton.addActionListener(this);
 		toolPanel.add( resetCameraButton );
-
+		
 		displayWorldAxesCheckBox = new JCheckBox("Display World Axes", sceneViewer.displayWorldAxes );
 		displayWorldAxesCheckBox.setAlignmentX( Component.LEFT_ALIGNMENT );
 		displayWorldAxesCheckBox.addActionListener(this);
@@ -946,6 +972,39 @@ public class SimpleModeller implements ActionListener {
 		displayWireFramesCheckBox.setAlignmentX( Component.LEFT_ALIGNMENT );
 		displayWireFramesCheckBox.addActionListener(this);
 		toolPanel.add( displayWireFramesCheckBox );
+		
+		redLabel= new JLabel("Red");
+		redLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+		redSelector = new JSlider(JSlider.HORIZONTAL,MIN, MAX,INIT);
+		redSelector.setAlignmentX( Component.LEFT_ALIGNMENT );
+		redSelector.addChangeListener(this);
+		toolPanel.add( redLabel );
+		toolPanel.add( redSelector );
+		
+		greenLabel= new JLabel("Green");
+		greenLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+		greenSelector = new JSlider(JSlider.HORIZONTAL,MIN, MAX,INIT);
+		greenSelector.setAlignmentX( Component.LEFT_ALIGNMENT );
+		greenSelector.addChangeListener(this);
+		toolPanel.add( greenLabel );
+		toolPanel.add( greenSelector );
+		
+		blueLabel= new JLabel("Blue");
+		blueLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+		blueSelector = new JSlider(JSlider.HORIZONTAL,MIN, MAX,INIT);
+		blueSelector.setAlignmentX( Component.LEFT_ALIGNMENT );
+		blueSelector.addChangeListener(this);
+		toolPanel.add( blueLabel );
+		toolPanel.add( blueSelector );
+		
+		alphaLabel= new JLabel("Alpha");
+		alphaLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+		alphaSelector = new JSlider(JSlider.HORIZONTAL,MIN, MAX,INIT);
+		alphaSelector.setAlignmentX( Component.LEFT_ALIGNMENT );
+		alphaSelector.addChangeListener(this);
+		toolPanel.add( alphaLabel );
+		toolPanel.add( alphaSelector );
+
 
 		frame.pack();
 		frame.setVisible( true );
