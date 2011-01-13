@@ -290,11 +290,15 @@ class Scene {
 		}
 	}
 
-
+	/**
+	 * 		drawScene()
+	 * @ver 1.0 Modifie methode pour prendre compte d'un booleen. (Modif F1).
+	 * */
 	public void drawScene(
 		GL gl,
 		int indexOfHilitedBox, // -1 for none
-		boolean useAlphaBlending
+		boolean useAlphaBlending,
+		boolean disWireFrames
 	) {
 		if ( useAlphaBlending ) {
 			gl.glDisable(GL.GL_DEPTH_TEST);
@@ -308,7 +312,7 @@ class Scene {
 				gl.glColor4f( cb.r, cb.g, cb.b, cb.a );
 			else
 				gl.glColor3f( cb.r, cb.g, cb.b );
-			drawBox( gl, cb.box, false, false, false );
+			drawBox( gl, cb.box, false, disWireFrames, false ); // CC
 		}
 		if ( useAlphaBlending ) {
 			gl.glDisable( GL.GL_BLEND );
@@ -364,6 +368,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 	public boolean displayCameraTarget = false;
 	public boolean displayBoundingBox = false;
 	public boolean enableCompositing = false;
+	public boolean displayWireFrames = false; // CC
 
 	int mouse_x, mouse_y, old_mouse_x, old_mouse_y;
 
@@ -522,7 +527,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		gl.glDisable( GL.GL_LIGHTING );
 		gl.glShadeModel( GL.GL_FLAT );
 
-		scene.drawScene( gl, indexOfHilitedBox, enableCompositing );
+		scene.drawScene( gl, indexOfHilitedBox, enableCompositing, displayWireFrames );
 
 		if ( displayWorldAxes ) {
 			gl.glBegin( GL.GL_LINES );
@@ -767,6 +772,7 @@ public class SimpleModeller implements ActionListener {
 	JCheckBox displayCameraTargetCheckBox;
 	JCheckBox displayBoundingBoxCheckBox;
 	JCheckBox enableCompositingCheckBox;
+	JCheckBox displayWireFramesCheckBox; // CC
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -818,6 +824,10 @@ public class SimpleModeller implements ActionListener {
 		}
 		else if ( source == resetCameraButton ) {
 			sceneViewer.resetCamera();
+			sceneViewer.repaint();
+		}
+		else if (source == displayWireFramesCheckBox ){
+			sceneViewer.displayWireFrames = ! sceneViewer.displayWireFrames; 
 			sceneViewer.repaint();
 		}
 		else if ( source == displayWorldAxesCheckBox ) {
@@ -931,6 +941,11 @@ public class SimpleModeller implements ActionListener {
 		enableCompositingCheckBox.setAlignmentX( Component.LEFT_ALIGNMENT );
 		enableCompositingCheckBox.addActionListener(this);
 		toolPanel.add( enableCompositingCheckBox );
+		
+		displayWireFramesCheckBox = new JCheckBox("Display Wire Frames", sceneViewer.displayWireFrames );
+		displayWireFramesCheckBox.setAlignmentX( Component.LEFT_ALIGNMENT );
+		displayWireFramesCheckBox.addActionListener(this);
+		toolPanel.add( displayWireFramesCheckBox );
 
 		frame.pack();
 		frame.setVisible( true );
