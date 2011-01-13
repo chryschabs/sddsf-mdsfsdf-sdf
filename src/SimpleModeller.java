@@ -609,6 +609,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 
 		if ( SwingUtilities.isLeftMouseButton(e) && !e.isControlDown() ) {
 			if ( indexOfSelectedBox >= 0 )
+				//scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(0).drawAsSelected();
 				// de-select the old box
 				scene.setSelectionStateOfBox( indexOfSelectedBox, false );
 			indexOfSelectedBox = indexOfHilitedBox;
