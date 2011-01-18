@@ -1,11 +1,13 @@
 
 import java.lang.Math;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import java.awt.Container;
 import java.awt.Component;
 import java.awt.Dimension;
 
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
@@ -13,8 +15,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -22,11 +26,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.BoxLayout;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionListener;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
@@ -376,6 +383,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 	public boolean displayBoundingBox = false;
 	public boolean enableCompositing = false;
 	public boolean displayWireFrames = false; // CC
+	public ArrayList<Integer> listBoxData = new ArrayList<Integer>(); // RL
 
 	int mouse_x, mouse_y, old_mouse_x, old_mouse_y;
 
@@ -404,6 +412,10 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 	}
 	public Dimension getPreferredSize() {
 		return new Dimension( 512, 512 );
+	}
+	
+	public int getLastBoxOfList(){
+		return listBoxData.get(listBoxData.size()-1);
 	}
 
 	float clamp( float x, float min, float max ) {
@@ -457,6 +469,8 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		// update selection to be new box
 		scene.setSelectionStateOfBox( indexOfSelectedBox, false );
 		indexOfSelectedBox = scene.coloredBoxes.size() - 1;
+		listBoxData.add(indexOfSelectedBox);
+		
 		scene.setSelectionStateOfBox( indexOfSelectedBox, true );
 	}
 
@@ -608,18 +622,23 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		updateHiliting();
 
 		if ( SwingUtilities.isLeftMouseButton(e) && !e.isControlDown() ) {
-			if ( indexOfSelectedBox >= 0 )
-				//scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(0).drawAsSelected();
-				// de-select the old box
-				scene.setSelectionStateOfBox( indexOfSelectedBox, false );
-			indexOfSelectedBox = indexOfHilitedBox;
-			selectedPoint.copy( hilitedPoint );
-			normalAtSelectedPoint.copy( normalAtHilitedPoint );
-			if ( indexOfSelectedBox >= 0 ) {
-				scene.setSelectionStateOfBox( indexOfSelectedBox, true );
-			}
-			repaint();
+			selectBox();
 		}
+	}
+	
+	public void selectBox(){
+		if ( indexOfSelectedBox >= 0 )
+			//scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(0).drawAsSelected();
+			// de-select the old box
+			scene.setSelectionStateOfBox( indexOfSelectedBox, false );
+		indexOfSelectedBox = indexOfHilitedBox;
+		selectedPoint.copy( hilitedPoint );
+		normalAtSelectedPoint.copy( normalAtHilitedPoint );
+		if ( indexOfSelectedBox >= 0 ) {
+			scene.setSelectionStateOfBox( indexOfSelectedBox, true );
+			SimpleModeller.sp.getBoxList().setSelectedIndex(indexOfSelectedBox);
+		}
+		repaint();
 	}
 
 	public void mouseReleased( MouseEvent e ) {
@@ -765,6 +784,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 
 public class SimpleModeller implements ActionListener,ChangeListener {
 
+	public static SimpleModeller sp;
 	static final String applicationName = "Simple Modeller";
 	static final int MIN = 0;
 	static final int MAX = 255;
@@ -794,6 +814,12 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 	JSlider greenSelector;
 	JSlider blueSelector;
 	JSlider alphaSelector;
+	JList boxList; // RL
+	JScrollPane scrollPane; // RL
+	DefaultListModel listModel; // RL
+
+
+
 
 
 	public void stateChanged(ChangeEvent e) {
@@ -813,6 +839,7 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 
 			if (response == JOptionPane.YES_OPTION) {
 				sceneViewer.deleteAll();
+				listModel.clear();
 				sceneViewer.repaint();
 			}
 		}
@@ -839,10 +866,13 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 		}
 		else if ( source == createBoxButton ) {
 			sceneViewer.createNewBox();
+			listModel.addElement("Boite "+sceneViewer.getLastBoxOfList());
+			getBoxList().setSelectedIndex(listModel.size()-1);
 			sceneViewer.repaint();
 		}
 		else if ( source == deleteSelectionButton ) {
 			sceneViewer.deleteSelection();
+			listModel.removeElementAt(listModel.size()-1);
 			sceneViewer.repaint();
 		}
 		else if ( source == lookAtSelectionButton ) {
@@ -1005,10 +1035,34 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 		alphaSelector.addChangeListener(this);
 		toolPanel.add( alphaLabel );
 		toolPanel.add( alphaSelector );
+		
+		listModel = new DefaultListModel();
+		boxList = new JList(listModel);
+		//pour sélectionner une box depuis la liste. 
+		//double cliquer dans la liste la box désirée.
+		MouseListener mouseListener = new MouseAdapter() {
+		    public void mouseClicked(MouseEvent e) {
+		        if (e.getClickCount() == 2) {
+		            int index = boxList.locationToIndex(e.getPoint());   
+		            sceneViewer.indexOfHilitedBox = index;
+		            
+		            sceneViewer.selectBox();
+		            sceneViewer.repaint();
+		         }
+		    }
+		};
+		boxList.addMouseListener(mouseListener);
 
-
+		scrollPane = new JScrollPane(boxList);
+		scrollPane.setAlignmentX( Component.LEFT_ALIGNMENT );
+		toolPanel.add( scrollPane );
+		
 		frame.pack();
 		frame.setVisible( true );
+	}
+	
+	public JList getBoxList(){
+		return boxList;
 	}
 
 	public static void main( String[] args ) {
@@ -1016,7 +1070,7 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 		javax.swing.SwingUtilities.invokeLater(
 			new Runnable() {
 				public void run() {
-					SimpleModeller sp = new SimpleModeller();
+					sp = new SimpleModeller();
 					sp.createUI();
 				}
 			}
