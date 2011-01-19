@@ -999,7 +999,7 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 		enableCompositingCheckBox.addActionListener(this);
 		toolPanel.add( enableCompositingCheckBox );
 		
-		displayWireFramesCheckBox = new JCheckBox("Display Wire Frames", sceneViewer.displayWireFrames );
+		displayWireFramesCheckBox = new JCheckBox("Draw Wireframe Boxes", sceneViewer.displayWireFrames );
 		displayWireFramesCheckBox.setAlignmentX( Component.LEFT_ALIGNMENT );
 		displayWireFramesCheckBox.addActionListener(this);
 		toolPanel.add( displayWireFramesCheckBox );
