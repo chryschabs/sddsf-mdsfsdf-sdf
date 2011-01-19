@@ -623,6 +623,21 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 
 		if ( SwingUtilities.isLeftMouseButton(e) && !e.isControlDown() ) {
 			selectBox();
+			System.out.println(selectedPoint.toString());
+			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(0).toString());
+			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(1).toString());
+			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(2).toString());
+			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(3).toString());
+			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(4).toString());
+			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(5).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(0).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(1).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(2).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(3).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(4).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(5).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(6).toString());
+//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(7).toString());
 		}
 	}
 	

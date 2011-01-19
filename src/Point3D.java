@@ -51,5 +51,9 @@ public class Point3D {
 		// return new Point3D( Vector3D.mult( Vector3D.sum( new Vector3D(a), new Vector3D(b) ), 0.5f ) );
 		return new Point3D( (a.x()+b.x())*0.5f, (a.y()+b.y())*0.5f, (a.z()+b.z())*0.5f );
 	}
+	
+	public String toString(){
+		return x() + " " + y() + " " + z();
+	}
 }
 
