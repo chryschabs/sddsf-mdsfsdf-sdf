@@ -19,25 +19,19 @@ public class AlignedBox3D {
 		p0.copy(min);
 		p1.copy(max);
 		isEmpty = false;
-		
-		/*
-		boxFace=new BoxFace[6];
-		boxFace[0]=new BoxFace();
-		boxFace[1]=new BoxFace();
-		boxFace[2]=new BoxFace();
-		boxFace[3]=new BoxFace();
-		boxFace[4]=new BoxFace();
-		boxFace[5]=new BoxFace();
-		
-		boxFace[0].setCorner(getCorner(0),getCorner(1),getCorner(3),getCorner(2));
-		boxFace[1].setCorner(getCorner(0),getCorner(4),getCorner(6),getCorner(5));
-		boxFace[2].setCorner(getCorner(4),getCorner(5),getCorner(7),getCorner(6));
-		boxFace[3].setCorner(getCorner(5),getCorner(7),getCorner(3),getCorner(1));
-		boxFace[4].setCorner(getCorner(7),getCorner(3),getCorner(2),getCorner(6));
-		boxFace[5].setCorner(getCorner(5),getCorner(1),getCorner(0),getCorner(4));
-		*/
+		instanciateFaces();				
 	}
 
+	public void instanciateFaces(){
+		boxFace = new BoxFace[6]; // 6 - maximum number of faces for a cube.
+		boxFace[0]=new BoxFace(getCorner(0),getCorner(1),getCorner(3),getCorner(2));
+		boxFace[1]=new BoxFace(getCorner(0),getCorner(4),getCorner(6),getCorner(5));
+		boxFace[2]=new BoxFace(getCorner(4),getCorner(5),getCorner(7),getCorner(6));
+		boxFace[3]=new BoxFace(getCorner(5),getCorner(7),getCorner(3),getCorner(1));
+		boxFace[4]=new BoxFace(getCorner(7),getCorner(3),getCorner(2),getCorner(6));
+		boxFace[5]=new BoxFace(getCorner(5),getCorner(1),getCorner(0),getCorner(4));
+	}
+	
 	public boolean isEmpty() {
 		return isEmpty;
 	}
