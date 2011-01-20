@@ -3,6 +3,7 @@
 public class AlignedBox3D {
 
 	private boolean isEmpty = true;
+	private boolean hasFaceX = false;
 
 	// diagonally opposite corners
 	private Point3D p0 = new Point3D(0, 0, 0);
@@ -234,6 +235,14 @@ public class AlignedBox3D {
 		}
 		return intersectionDetected;
 
+	}
+
+	public boolean hasFaceX() {
+		return hasFaceX;
+	}
+
+	public void setHasFaceX(boolean hasFaceX) {
+		this.hasFaceX = hasFaceX;
 	}
 
 }
