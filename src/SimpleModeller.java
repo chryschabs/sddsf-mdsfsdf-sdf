@@ -325,13 +325,13 @@ class Scene {
 				gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 				gl.glColor3f(1.0f,1.0f,1.0f);
 				gl.glVertex3f(face.corners[0].x(), face.corners[0].y(), face.corners[0].z());
-				System.out.println("first line from: " + face.corners[0].toString());
+				//System.out.println("first line from: " + face.corners[0].toString());
 				gl.glVertex3f(face.corners[2].x(),face.corners[2].y(), face.corners[2].z() );
-				System.out.println("to: " + face.corners[2].toString());
+				//System.out.println("to: " + face.corners[2].toString());
 				gl.glVertex3f(face.corners[1].x(),face.corners[1].y(),face.corners[1].z());
-				System.out.println("second line from: " + face.corners[1].toString());
+				//System.out.println("second line from: " + face.corners[1].toString());
 				gl.glVertex3f(face.corners[3].x(),face.corners[3].y(),face.corners[3].z());
-				System.out.println("to: " + face.corners[3].toString());
+				//System.out.println("to: " + face.corners[3].toString());
 			gl.glEnd();
 		}else{
 			System.out.println("face null");
@@ -654,6 +654,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		mouse_y = e.getY();
 
 		if ( radialMenu.isVisible() || (SwingUtilities.isRightMouseButton(e) && !e.isShiftDown() && !e.isControlDown()) ) {
+			selectBox();
 			int returnValue = radialMenu.pressEvent( mouse_x, mouse_y );
 			if ( returnValue == CustomWidget.S_REDRAW )
 				repaint();
