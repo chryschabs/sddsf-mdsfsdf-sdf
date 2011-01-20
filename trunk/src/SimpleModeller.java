@@ -46,7 +46,15 @@ import javax.media.opengl.GLEventListener;
 
 import com.sun.opengl.util.GLUT;
 
-
+/**
+ * LOG745
+ * TP-#1
+ * @author Alexandre Girard, 
+ * 			René Laplaine, 
+ * 			Chrystophe Chabert
+ * @goal Classe modifiée pour implémenter deux changements faciles et deux difficles.
+ *
+ */
 class ColoredBox {
 	public static final float DEFAULT_SIZE = 0.5f;
 	public static final float DEFAULT_ALPHA = 0.5f;
@@ -736,6 +744,8 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 			switch ( itemID ) {
 			case COMMAND_CREATE_BOX :
 				createNewBox();
+				SimpleModeller.sp.listModel.addElement("Boite "+this.getLastBoxOfList());
+				SimpleModeller.sp.getBoxList().setSelectedIndex(SimpleModeller.sp.listModel.size()-1);
 				break;
 			case COMMAND_COLOR_RED :
 				setColorOfSelection( 1, 0, 0 , DEFAULT_ALPHA );
@@ -751,6 +761,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 				break;
 			case COMMAND_DELETE :
 				deleteSelection();
+				SimpleModeller.sp.listModel.removeElementAt(SimpleModeller.sp.listModel.size()-1);
 				break;
 			}
 
@@ -1145,6 +1156,14 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 	
 	public JList getBoxList(){
 		return boxList;
+	}
+
+	public DefaultListModel getListModel() {
+		return listModel;
+	}
+
+	public void setListModel(DefaultListModel listModel) {
+		this.listModel = listModel;
 	}
 
 	public static void main( String[] args ) {
