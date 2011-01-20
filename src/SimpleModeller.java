@@ -1,5 +1,7 @@
 
 import java.lang.Math;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -300,6 +302,33 @@ class Scene {
 				gl.glVertex3fv( box.getCorner( 2 ).get(), 0 );
 			gl.glEnd();
 		}
+	}
+	
+	public void drawX(
+			AlignedBox3D box,
+			BoxFace boxFace){
+		GL gl = null;
+		int i = 0;
+		BoxFace face = null;
+		for(i = 0; i<6; i++){
+			if(box.getFace(i) == boxFace){
+				face = box.getFace(i);
+			}
+		}
+		if(face != null){
+			gl.glBegin( GL.GL_LINES );
+				gl.glVertex3fv( face.corners[0].get(), 0 );
+				gl.glVertex3fv( face.corners[2].get(), 0 );
+				gl.glVertex3fv( face.corners[1].get(), 0 );
+				gl.glVertex3fv( face.corners[3].get(), 0 );
+			gl.glEnd();
+		}
+	}
+	
+	public void removeX(GL gl,
+			AlignedBox3D box,
+			BoxFace boxFace){
+		
 	}
 
 	/**
@@ -620,24 +649,11 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		}
 
 		updateHiliting();
-
 		if ( SwingUtilities.isLeftMouseButton(e) && !e.isControlDown() ) {
 			selectBox();
-			System.out.println(selectedPoint.toString());
-			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(0).toString());
-			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(1).toString());
-			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(2).toString());
-			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(3).toString());
-			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(4).toString());
-			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getFace(5).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(0).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(1).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(2).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(3).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(4).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(5).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(6).toString());
-//			System.out.println(scene.coloredBoxes.get(indexOfSelectedBox).box.getCorner(7).toString());
+			System.out.println(Utils.trim(selectedPoint.x(),4) + " " + Utils.trim(selectedPoint.y(),4) + " " + Utils.trim(selectedPoint.z(),4));
+			highlightSelectedFace(scene.coloredBoxes.get(indexOfSelectedBox),selectedPoint);
+			repaint();
 		}
 	}
 	
@@ -655,7 +671,46 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		}
 		repaint();
 	}
-
+	
+	/**
+	 * 		highlightSelectedFace
+	 * @param box
+	 * @param pt
+	 * @goal with a given point from the face, method is to draw an "X" marker on currently selected face.
+	 */
+	public void highlightSelectedFace(ColoredBox selectedBox, Point3D pt){
+		int iterator = 0;
+		//look for the face that has the point.
+		for(iterator = 0; iterator < 6; iterator++){
+			//when the point is found on a face, draw an X on that face if and only
+			//if that face has no 'X' on it already.
+			if(selectedBox.box.getFace(iterator).includesSelectedPoint(pt)){
+				if(!(selectedBox.box.getFace(iterator).isX())){
+					System.out.println("X on face:" + iterator);
+					scene.drawX(selectedBox.box, selectedBox.box.getFace(iterator));
+					selectedBox.box.getFace(iterator).setX(true);
+					int j = 0;
+					//and remove the X from the old face (without mistaking it for the new face)
+					//if there were any.
+					//selectedBox.box.getFace(iterator).drawX();
+					while(j < 6){
+						if(j != iterator){
+							if(selectedBox.box.getFace(j).isX()){
+								//selectedBox.box.getFace(iterator).removeX();
+								System.out.println("Removed X on face:" + j);
+								selectedBox.box.getFace(j).setX(false);
+								break;
+							}
+						}
+						j++;
+					}
+					break;
+				}
+			}
+		}
+	}
+	
+	
 	public void mouseReleased( MouseEvent e ) {
 		old_mouse_x = mouse_x;
 		old_mouse_y = mouse_y;
