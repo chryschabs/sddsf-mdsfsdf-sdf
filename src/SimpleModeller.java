@@ -360,7 +360,7 @@ class Scene {
 		GL gl,
 		int indexOfHilitedBox, // -1 for none
 		boolean useAlphaBlending,
-		boolean disWireFrames
+		boolean disWireFrames //F1
 	) {
 		if ( useAlphaBlending ) {
 			gl.glDisable(GL.GL_DEPTH_TEST);
@@ -375,7 +375,7 @@ class Scene {
 			else
 				gl.glColor3f( cb.r, cb.g, cb.b );
 
-			drawBox( gl, cb.box, false, disWireFrames, false ); // CC
+			drawBox( gl, cb.box, false, disWireFrames, false ); // CC - F1
 		}
 		if ( useAlphaBlending ) {
 			gl.glDisable( GL.GL_BLEND );
@@ -672,7 +672,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 
 		updateHiliting();
 		if ( SwingUtilities.isLeftMouseButton(e) && !e.isControlDown() ) {
-			selectBox();
+			selectBox();//F3
 			//System.out.println(Utils.trim(selectedPoint.x(),4) + " " + Utils.trim(selectedPoint.y(),4) + " " + Utils.trim(selectedPoint.z(),4));
 			//highlightSelectedFace(this.getGL(), scene.coloredBoxes.get(indexOfSelectedBox),selectedPoint);
 			repaint();
@@ -744,8 +744,8 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 			switch ( itemID ) {
 			case COMMAND_CREATE_BOX :
 				createNewBox();
-				SimpleModeller.sp.listModel.addElement("Boite "+this.getLastBoxOfList());
-				SimpleModeller.sp.getBoxList().setSelectedIndex(SimpleModeller.sp.listModel.size()-1);
+				SimpleModeller.sp.listModel.addElement("Boite "+this.getLastBoxOfList()); //D5
+				SimpleModeller.sp.getBoxList().setSelectedIndex(SimpleModeller.sp.listModel.size()-1); //D5
 				break;
 			case COMMAND_COLOR_RED :
 				setColorOfSelection( 1, 0, 0 , DEFAULT_ALPHA );
@@ -761,7 +761,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 				break;
 			case COMMAND_DELETE :
 				deleteSelection();
-				SimpleModeller.sp.listModel.removeElementAt(SimpleModeller.sp.listModel.size()-1);
+				SimpleModeller.sp.listModel.removeElementAt(SimpleModeller.sp.listModel.size()-1); //D5
 				break;
 			}
 
@@ -1097,6 +1097,8 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 		displayWireFramesCheckBox.addActionListener(this);
 		toolPanel.add( displayWireFramesCheckBox );
 		
+		//D1
+		
 		redLabel= new JLabel("Red");
 		redLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
 		redSelector = new JSlider(JSlider.HORIZONTAL,MIN, MAX,INIT);
@@ -1159,7 +1161,7 @@ public class SimpleModeller implements ActionListener,ChangeListener {
 	}
 
 	public DefaultListModel getListModel() {
-		return listModel;
+		return listModel; 
 	}
 
 	public void setListModel(DefaultListModel listModel) {
