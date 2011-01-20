@@ -304,10 +304,9 @@ class Scene {
 		}
 	}
 	
-	public void drawX(
+	public void drawX(GL gl,
 			AlignedBox3D box,
 			BoxFace boxFace){
-		GL gl = null;
 		int i = 0;
 		BoxFace face = null;
 		for(i = 0; i<6; i++){
@@ -316,12 +315,26 @@ class Scene {
 			}
 		}
 		if(face != null){
+			
+			/*
+			 * Avec l'aide de:
+			 * Kiet Le
+			 * http://www.java-tips.org/other-api-tips/jogl/how-to-draw-lines-in-different-styles.html
+			 */
 			gl.glBegin( GL.GL_LINES );
-				gl.glVertex3fv( face.corners[0].get(), 0 );
-				gl.glVertex3fv( face.corners[2].get(), 0 );
-				gl.glVertex3fv( face.corners[1].get(), 0 );
-				gl.glVertex3fv( face.corners[3].get(), 0 );
+				gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+				gl.glColor3f(1.0f,1.0f,1.0f);
+				gl.glVertex3f(face.corners[0].x(), face.corners[0].y(), face.corners[0].z());
+				System.out.println("first line from: " + face.corners[0].toString());
+				gl.glVertex3f(face.corners[2].x(),face.corners[2].y(), face.corners[2].z() );
+				System.out.println("to: " + face.corners[2].toString());
+				gl.glVertex3f(face.corners[1].x(),face.corners[1].y(),face.corners[1].z());
+				System.out.println("second line from: " + face.corners[1].toString());
+				gl.glVertex3f(face.corners[3].x(),face.corners[3].y(),face.corners[3].z());
+				System.out.println("to: " + face.corners[3].toString());
 			gl.glEnd();
+		}else{
+			System.out.println("face null");
 		}
 	}
 	
@@ -651,8 +664,8 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		updateHiliting();
 		if ( SwingUtilities.isLeftMouseButton(e) && !e.isControlDown() ) {
 			selectBox();
-			System.out.println(Utils.trim(selectedPoint.x(),4) + " " + Utils.trim(selectedPoint.y(),4) + " " + Utils.trim(selectedPoint.z(),4));
-			highlightSelectedFace(scene.coloredBoxes.get(indexOfSelectedBox),selectedPoint);
+			//System.out.println(Utils.trim(selectedPoint.x(),4) + " " + Utils.trim(selectedPoint.y(),4) + " " + Utils.trim(selectedPoint.z(),4));
+			highlightSelectedFace(this.getGL(), scene.coloredBoxes.get(indexOfSelectedBox),selectedPoint);
 			repaint();
 		}
 	}
@@ -678,34 +691,32 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 	 * @param pt
 	 * @goal with a given point from the face, method is to draw an "X" marker on currently selected face.
 	 */
-	public void highlightSelectedFace(ColoredBox selectedBox, Point3D pt){
+	public void highlightSelectedFace(GL gl, ColoredBox selectedBox, Point3D pt){
 		int iterator = 0;
 		//look for the face that has the point.
 		for(iterator = 0; iterator < 6; iterator++){
 			//when the point is found on a face, draw an X on that face if and only
 			//if that face has no 'X' on it already.
-			if(selectedBox.box.getFace(iterator).includesSelectedPoint(pt)){
-				if(!(selectedBox.box.getFace(iterator).isX())){
-					System.out.println("X on face:" + iterator);
-					scene.drawX(selectedBox.box, selectedBox.box.getFace(iterator));
-					selectedBox.box.getFace(iterator).setX(true);
-					int j = 0;
-					//and remove the X from the old face (without mistaking it for the new face)
-					//if there were any.
-					//selectedBox.box.getFace(iterator).drawX();
-					while(j < 6){
-						if(j != iterator){
-							if(selectedBox.box.getFace(j).isX()){
-								//selectedBox.box.getFace(iterator).removeX();
-								System.out.println("Removed X on face:" + j);
-								selectedBox.box.getFace(j).setX(false);
-								break;
-							}
+			if(selectedBox.box.getFace(iterator).includesSelectedPoint(pt) && !(selectedBox.box.getFace(iterator).isX())){
+				System.out.println("X on face:" + iterator);
+				scene.drawX(gl, selectedBox.box, selectedBox.box.getFace(iterator));
+				selectedBox.box.getFace(iterator).setX(true);
+				int j = 0;
+				//and remove the X from the old face (without mistaking it for the new face)
+				//if there were any.
+				//selectedBox.box.getFace(iterator).drawX();
+				while(j < 6){
+					if(j != iterator){
+						if(selectedBox.box.getFace(j).isX()){
+							//selectedBox.box.getFace(iterator).removeX();
+							System.out.println("Removed X on face:" + j);
+							selectedBox.box.getFace(j).setX(false);
+							break;
 						}
-						j++;
 					}
-					break;
+					j++;
 				}
+				break;				
 			}
 		}
 	}

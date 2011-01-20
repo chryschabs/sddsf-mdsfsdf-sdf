@@ -139,31 +139,6 @@ public class BoxFace {
 		return isFaceValid;
 	}
 	
-	/**
-	 * 	drawX()
-	 * @goal calls open GL procedures to initiate the drawing of a face.
-	 */
-	public void drawX(){
-		gl.glBegin(GL.GL_LINES);
-			gl.glColor3f(1,0,0);
-			gl.glVertex3fv( corners[0].get(), 0 );
-			gl.glVertex3fv( corners[2].get(), 0 );
-			gl.glVertex3fv( corners[1].get(), 0 );
-			gl.glVertex3fv( corners[3].get(), 0 );
-		gl.glEnd();
-		setX(true);
-	}
-	
-	/**
-	 *  removeX
-	 *  @goal calls OpenGL functions to remove previously drawn X.
-	 */
-	public void removeX(){
-		gl.glBegin(GL.GL_LINES);
-			
-		gl.glEnd();
-		setX(false);
-	}
 
 	public void drawAsSelected(){
 		gl.glBegin( GL.GL_LINES );
