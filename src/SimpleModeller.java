@@ -652,9 +652,9 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		old_mouse_y = mouse_y;
 		mouse_x = e.getX();
 		mouse_y = e.getY();
-
-		if ( radialMenu.isVisible() || (SwingUtilities.isRightMouseButton(e) && !e.isShiftDown() && !e.isControlDown()) ) {
-			selectBox();
+		
+		if(radialMenu.isVisible() || (SwingUtilities.isRightMouseButton(e) && !e.isShiftDown() && !e.isControlDown())){
+			selectBox();			
 			int returnValue = radialMenu.pressEvent( mouse_x, mouse_y );
 			if ( returnValue == CustomWidget.S_REDRAW )
 				repaint();
@@ -666,7 +666,7 @@ class SceneViewer extends GLCanvas implements MouseListener, MouseMotionListener
 		if ( SwingUtilities.isLeftMouseButton(e) && !e.isControlDown() ) {
 			selectBox();
 			//System.out.println(Utils.trim(selectedPoint.x(),4) + " " + Utils.trim(selectedPoint.y(),4) + " " + Utils.trim(selectedPoint.z(),4));
-			highlightSelectedFace(this.getGL(), scene.coloredBoxes.get(indexOfSelectedBox),selectedPoint);
+			//highlightSelectedFace(this.getGL(), scene.coloredBoxes.get(indexOfSelectedBox),selectedPoint);
 			repaint();
 		}
 	}
